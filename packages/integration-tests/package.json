@@ -1,0 +1,34 @@
+{
+  "name": "@midnight-experiments/integration-tests",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Live benchmark suite: deploys each experiment contract against the local Midnight stack, drives every measured circuit through an instrumented proof provider, and records circuit/proof metrics to reports/raw/records.jsonl. `yarn report` renders reports/REPORT.md. Requires `yarn compile:zk` output and a running node + indexer + proof server.",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests",
+    "test:integration": "RUN_INTEGRATION_TESTS=1 vitest run tests/ --bail 1 --disable-console-intercept",
+    "bench:baseline": "RUN_INTEGRATION_TESTS=1 vitest run tests/baseline.test.ts --bail 1 --disable-console-intercept",
+    "bench:events": "RUN_INTEGRATION_TESTS=1 vitest run tests/events.test.ts --bail 1 --disable-console-intercept",
+    "bench:hashing": "RUN_INTEGRATION_TESTS=1 vitest run tests/hashing.test.ts --bail 1 --disable-console-intercept",
+    "bench:xcall": "RUN_INTEGRATION_TESTS=1 vitest run tests/xcall.test.ts --bail 1 --disable-console-intercept",
+    "report": "tsx scripts/report.ts"
+  },
+  "dependencies": {
+    "@midnight-experiments/baseline-contract": "*",
+    "@midnight-experiments/events-contract": "*",
+    "@midnight-experiments/hashing-contract": "*",
+    "@midnight-experiments/lib": "*",
+    "@midnight-experiments/xcall-contract": "*",
+    "@midnight-ntwrk/midnight-js": "5.0.0-beta.3",
+    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "5.0.0-beta.3",
+    "@midnight-ntwrk/midnight-js-node-zk-config-provider": "5.0.0-beta.3",
+    "@midnight-ntwrk/midnight-js-types": "5.0.0-beta.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "tsx": "^4.23.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}

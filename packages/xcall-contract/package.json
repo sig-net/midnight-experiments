@@ -1,0 +1,29 @@
+{
+  "name": "@midnight-experiments/xcall-contract",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cross-contract-call experiment: caller + target contracts measuring 0/1/2 calls, a Bytes<256> call argument, and a call whose callee fires an event. Deploy the target first — the caller seals a reference to it.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "compile": "yarn compile:target && yarn compile:caller",
+    "compile:target": "compact compile --skip-zk src/target.compact src/managed/target",
+    "compile:caller": "compact compile --skip-zk src/caller.compact src/managed/caller",
+    "compile:zk": "yarn compile:target:zk && yarn compile:caller:zk",
+    "compile:target:zk": "compact compile src/target.compact src/managed/target",
+    "compile:caller:zk": "compact compile src/caller.compact src/managed/caller",
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@midnight-experiments/lib": "*",
+    "@midnight-ntwrk/compact-runtime": "0.18.0-rc.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}

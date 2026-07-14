@@ -1,0 +1,44 @@
+# Local Midnight stack (node + indexer + proof server) for the benchmarks.
+# Bring it up with `docker compose up -d`. Image pins copied verbatim from
+# sig-net/midnight-erc20-vault-refactor's docker-compose.yaml — the ledger-9 /
+# contract-events line matching the workspace's npm stack (midnight-js
+# 5.0.0-beta.3 / @midnightntwrk/ledger-v9 1.0.0-rc.3 / compact-runtime
+# 0.18.0-rc.0 / compactc 0.33.0). When bumping, move the whole set together.
+#
+# NOTE: if the refactor repo's stack is already running (same container names
+# and ports), reuse it — do not start this one on top.
+services:
+  proof-server:
+    container_name: 'midnight-proof-server'
+    image: 'midnightntwrk/proof-server:9.0.0-rc.3'
+    command: ['midnight-proof-server -v']
+    ports:
+      - '127.0.0.1:6300:6300'
+    environment:
+      RUST_BACKTRACE: 'full'
+
+  indexer:
+    # A "contract-events" build — decodes MIP-0002 `Misc` events; a stock
+    # ledger-8-era indexer will not surface them.
+    container_name: 'midnight-indexer'
+    image: 'midnightntwrk/indexer-standalone:4.4.0-pre-alpha.16-l91r3-n2r3-bridge-and-events-epics-contract-zswap-16c656df'
+    env_file: standalone.env
+    ports:
+      - '127.0.0.1:8088:8088'
+    environment:
+      RUST_LOG: 'indexer_standalone=info,chain_indexer=info,indexer_api=info,info'
+    depends_on:
+      node:
+        condition: service_started
+
+  node:
+    container_name: 'midnight-node'
+    image: 'midnightntwrk/midnight-node:2.0.0-rc.3'
+    ports:
+      - '127.0.0.1:9944:9944'
+    environment:
+      CFG_PRESET: 'dev'
+      THRESHOLD: '0'
+      SHOW_CONFIG: 'false'
+      RUST_BACKTRACE: '1'
+      SIDECHAIN_BLOCK_BENEFICIARY: '04bcf7ad3be7a5c790460be82a713af570f22e0f801f6659ab8e84a52be6969e'

@@ -1,0 +1,59 @@
+{
+  "name": "midnight-experiments",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Benchmark workspace measuring how Compact constructs (events, cross-contract calls, hashing) affect circuit size, proof size and proving time. Run `yarn compile:zk` once before the integration benchmarks — proving needs the generated keys.",
+  "packageManager": "yarn@4.17.1",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "compile": "yarn workspaces foreach --all --exclude midnight-experiments --topological run compile",
+    "compile:zk": "yarn workspaces foreach --all --exclude midnight-experiments --topological run compile:zk",
+    "build": "yarn workspaces foreach --all --exclude midnight-experiments --topological run build",
+    "test": "yarn workspaces foreach --all --exclude midnight-experiments --topological run test",
+    "bench": "yarn workspace @midnight-experiments/integration-tests run test:integration",
+    "report": "yarn workspace @midnight-experiments/integration-tests run report",
+
+    "compile:zk:baseline": "yarn workspace @midnight-experiments/baseline-contract run compile:zk",
+    "compile:zk:events": "yarn workspace @midnight-experiments/events-contract run compile:zk",
+    "compile:zk:hashing": "yarn workspace @midnight-experiments/hashing-contract run compile:zk",
+    "compile:zk:xcall": "yarn workspace @midnight-experiments/xcall-contract run compile:zk",
+
+    "bench:baseline": "yarn workspace @midnight-experiments/integration-tests run bench:baseline",
+    "bench:events": "yarn workspace @midnight-experiments/integration-tests run bench:events",
+    "bench:hashing": "yarn workspace @midnight-experiments/integration-tests run bench:hashing",
+    "bench:xcall": "yarn workspace @midnight-experiments/integration-tests run bench:xcall",
+
+    "bench:baseline-noop": "BENCH_CIRCUITS=noop yarn bench:baseline",
+    "bench:baseline-base": "BENCH_CIRCUITS=base yarn bench:baseline",
+    "bench:events-base": "BENCH_CIRCUITS=base yarn bench:events",
+    "bench:events-emit1": "BENCH_CIRCUITS=emit1 yarn bench:events",
+    "bench:events-emit2": "BENCH_CIRCUITS=emit2 yarn bench:events",
+    "bench:events-emit4": "BENCH_CIRCUITS=emit4 yarn bench:events",
+    "bench:hashing-control32": "BENCH_CIRCUITS=control32 yarn bench:hashing",
+    "bench:hashing-control256": "BENCH_CIRCUITS=control256 yarn bench:hashing",
+    "bench:hashing-control1024": "BENCH_CIRCUITS=control1024 yarn bench:hashing",
+    "bench:hashing-persistent32": "BENCH_CIRCUITS=persistent32 yarn bench:hashing",
+    "bench:hashing-persistent256": "BENCH_CIRCUITS=persistent256 yarn bench:hashing",
+    "bench:hashing-persistent1024": "BENCH_CIRCUITS=persistent1024 yarn bench:hashing",
+    "bench:hashing-persistentVec8": "BENCH_CIRCUITS=persistentVec8 yarn bench:hashing",
+    "bench:hashing-transient32": "BENCH_CIRCUITS=transient32 yarn bench:hashing",
+    "bench:hashing-transient256": "BENCH_CIRCUITS=transient256 yarn bench:hashing",
+    "bench:hashing-transient1024": "BENCH_CIRCUITS=transient1024 yarn bench:hashing",
+    "bench:xcall-localBase": "BENCH_CIRCUITS=localBase yarn bench:xcall",
+    "bench:xcall-callOnce": "BENCH_CIRCUITS=callOnce yarn bench:xcall",
+    "bench:xcall-callTwice": "BENCH_CIRCUITS=callTwice yarn bench:xcall",
+    "bench:xcall-callBig": "BENCH_CIRCUITS=callBig yarn bench:xcall",
+    "bench:xcall-callEmit": "BENCH_CIRCUITS=callEmit yarn bench:xcall"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.0"
+  },
+  "resolutions": {
+    "@midnightntwrk/ledger-v9": "1.0.0-rc.3",
+    "@midnightntwrk/onchain-runtime-v4": "4.0.0-rc.2",
+    "@midnightntwrk/wallet-sdk-address-format": "4.0.0-beta.2"
+  }
+}

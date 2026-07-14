@@ -1,0 +1,25 @@
+{
+  "name": "@midnight-experiments/events-contract",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Events experiment: the shared workload plus 0/1/2/4 MIP-0002 Misc events (the payload is fixed at Bytes<256>, so event volume scales in 256-byte steps).",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "compile": "compact compile --skip-zk src/events.compact src/managed/events",
+    "compile:zk": "compact compile src/events.compact src/managed/events",
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@midnight-experiments/lib": "*",
+    "@midnight-ntwrk/compact-runtime": "0.18.0-rc.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}

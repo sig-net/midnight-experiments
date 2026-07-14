@@ -1,0 +1,25 @@
+{
+  "name": "@midnight-experiments/baseline-contract",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Control experiment: the shared workload (logic + mint + storage) with no events, no cross-contract calls, no explicit hashing — plus an empty `noop` circuit as the proof-system floor.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "compile": "compact compile --skip-zk src/baseline.compact src/managed/baseline",
+    "compile:zk": "compact compile src/baseline.compact src/managed/baseline",
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@midnight-experiments/lib": "*",
+    "@midnight-ntwrk/compact-runtime": "0.18.0-rc.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}

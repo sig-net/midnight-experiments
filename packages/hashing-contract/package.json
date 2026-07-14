@@ -1,0 +1,25 @@
+{
+  "name": "@midnight-experiments/hashing-contract",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Hashing experiment: persistentHash / transientHash over 32/256/1024-byte inputs (plus a Vector<8, Bytes<32>> structure), with no-hash controls isolating the cost of large circuit inputs.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "compile": "compact compile --skip-zk src/hashing.compact src/managed/hashing",
+    "compile:zk": "compact compile src/hashing.compact src/managed/hashing",
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@midnight-experiments/lib": "*",
+    "@midnight-ntwrk/compact-runtime": "0.18.0-rc.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}
