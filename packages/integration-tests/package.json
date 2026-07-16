@@ -12,6 +12,8 @@
     "bench:events": "RUN_INTEGRATION_TESTS=1 vitest run tests/events.test.ts --bail 1 --disable-console-intercept",
     "bench:hashing": "RUN_INTEGRATION_TESTS=1 vitest run tests/hashing.test.ts --bail 1 --disable-console-intercept",
     "bench:xcall": "RUN_INTEGRATION_TESTS=1 vitest run tests/xcall.test.ts --bail 1 --disable-console-intercept",
+    "bench:xcall-payment": "RUN_INTEGRATION_TESTS=1 vitest run tests/xcall-with-payment.test.ts --bail 1 --disable-console-intercept",
+    "test:xcall-payment-atomic": "RUN_INTEGRATION_TESTS=1 vitest run tests/xcall-with-payment-atomic.test.ts --bail 1 --disable-console-intercept",
     "report": "tsx scripts/report.ts"
   },
   "dependencies": {
@@ -20,9 +22,11 @@
     "@midnight-experiments/hashing-contract": "*",
     "@midnight-experiments/lib": "*",
     "@midnight-experiments/xcall-contract": "*",
+    "@midnight-experiments/xcall-with-payment-contract": "*",
     "@midnight-ntwrk/midnight-js": "5.0.0-beta.3",
     "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "5.0.0-beta.3",
     "@midnight-ntwrk/midnight-js-node-zk-config-provider": "5.0.0-beta.3",
+    "@midnight-ntwrk/midnight-js-protocol": "5.0.0-beta.3",
     "@midnight-ntwrk/midnight-js-types": "5.0.0-beta.3"
   },
   "devDependencies": {

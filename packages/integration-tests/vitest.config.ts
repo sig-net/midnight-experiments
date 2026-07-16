@@ -9,7 +9,14 @@ import { basename } from "node:path";
 import { defineConfig } from "vitest/config";
 import { BaseSequencer, type TestSpecification } from "vitest/node";
 
-const FILE_ORDER = ["baseline.test.ts", "events.test.ts", "hashing.test.ts", "xcall.test.ts"];
+const FILE_ORDER = [
+  "baseline.test.ts",
+  "events.test.ts",
+  "hashing.test.ts",
+  "xcall.test.ts",
+  "xcall-with-payment.test.ts",
+  "xcall-with-payment-atomic.test.ts",
+];
 
 const rank = (moduleId: string): number => {
   const index = FILE_ORDER.indexOf(basename(moduleId));
