@@ -45,7 +45,8 @@ standalone stack in [docker-compose.yaml](docker-compose.yaml).
 │           └── vitest.config.ts  # Benchmark experiments reuse the shared bench config.
 │
 └── reports/                      # REPORT.md (generated), ANALYSIS.md (hand-written),
-                                  #   raw/records.jsonl (gitignored bench observations).
+                                  #   raw/records.jsonl (committed raw bench observations,
+                                  #   appended by every bench run).
 ```
 
 Current experiments:

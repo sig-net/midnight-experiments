@@ -5,5 +5,4 @@ node_modules/
 !.yarn/plugins
 .DS_Store
 midnight-level-db/
-reports/raw/
 *.tsbuildinfo
