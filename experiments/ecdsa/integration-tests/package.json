@@ -1,0 +1,27 @@
+{
+  "name": "@midnight-experiments/ecdsa-integration-tests",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "End-to-end proof for the ecdsa experiment on a live local stack: deploys the attestation contract with a pinned secp256k1 key, posts an ECDSA-signed attestation under REAL ZKIR v3 proving, and reads the authenticated record back off the indexer. Gated by RUN_INTEGRATION_TESTS; run `yarn compile:zk` in the contract package first.",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests",
+    "test:integration": "RUN_INTEGRATION_TESTS=1 vitest run --bail 1 --disable-console-intercept tests/integration-test.test.ts"
+  },
+  "dependencies": {
+    "@midnight-experiments/ecdsa-contract": "*",
+    "@midnight-ntwrk/midnight-js": "5.0.0-beta.4",
+    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "5.0.0-beta.4",
+    "@midnight-ntwrk/midnight-js-types": "5.0.0-beta.4",
+    "@sig-net/midnight-contract-deploy": "^0.0.4"
+  },
+  "devDependencies": {
+    "@midnight-ntwrk/compact-runtime": "0.18.0-rc.1",
+    "@noble/curves": "^2.2.0",
+    "@noble/hashes": "^2.2.0",
+    "@types/node": "^26.1.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}

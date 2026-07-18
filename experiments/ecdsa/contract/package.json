@@ -1,0 +1,36 @@
+{
+  "name": "@midnight-experiments/ecdsa-contract",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Feature experiment: proves compactc 0.33 (this repo's toolchain) verifies secp256k1 ECDSA signatures in-circuit via the standard library's secp256k1EcdsaVerify: the drop-in replacement for the signet contract's JubJub Schnorr attestation. Requires the --feature-zkir-v3 backend. Unit tests run offline; the live e2e lives in the sibling integration-tests package. Run `yarn compile:zk` before deploying.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "compile": "COMPACT_PATH=../../../node_modules compact compile --skip-zk --feature-zkir-v3 src/ecdsa.compact src/managed/ecdsa",
+    "compile:zk": "COMPACT_PATH=../../../node_modules compact compile --feature-zkir-v3 src/ecdsa.compact src/managed/ecdsa",
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests",
+    "fund-deployer": "tsx fund-deployer.ts"
+  },
+  "dependencies": {
+    "@midnight-experiments/lib": "*",
+    "@midnight-ntwrk/midnight-js": "5.0.0-beta.4",
+    "@midnight-ntwrk/midnight-js-http-client-proof-provider": "5.0.0-beta.4",
+    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "5.0.0-beta.4",
+    "@midnight-ntwrk/midnight-js-level-private-state-provider": "5.0.0-beta.4",
+    "@midnight-ntwrk/midnight-js-node-zk-config-provider": "5.0.0-beta.4",
+    "@midnightntwrk/ledger-v9": "1.0.0-rc.3",
+    "@sig-net/midnight-contract-deploy": "^0.0.4"
+  },
+  "devDependencies": {
+    "@midnight-ntwrk/compact-runtime": "0.18.0-rc.1",
+    "@noble/curves": "^2.2.0",
+    "@noble/hashes": "^2.2.0",
+    "@types/node": "^26.1.0",
+    "tsx": "^4.23.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}

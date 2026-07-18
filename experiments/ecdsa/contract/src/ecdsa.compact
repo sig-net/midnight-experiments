@@ -1,0 +1,112 @@
+pragma language_version >= 0.25;
+
+// Feature experiment: can a Compact contract verify a secp256k1 ECDSA
+// signature IN-CIRCUIT, so the signet contract's JubJub Schnorr attestation
+// (postRespondBidirectional) can move to the MPC's native ECDSA key?
+//
+// The contract mirrors the signet attestation shape one-to-one:
+//   • a sealed MPC key pinned at deploy time (here a Secp256k1Point, hashed),
+//   • an attestation circuit that anyone may CALL but where nothing
+//     unauthentic can LAND: the ECDSA signature over msgHash is verified
+//     in-circuit against the pinned key,
+//   • first-valid-write-wins storage keyed by the signed message hash.
+//
+// Toolchain notes this experiment pins (see the sibling knowledge-base/):
+//   • secp256k1EcdsaVerify / Secp256k1EcdsaSignature / Secp256k1Point come
+//     from CompactStandardLibrary but ONLY compile with --feature-zkir-v3.
+//   • Secp256k1Scalar values cannot be stored in ledger state (internal
+//     compiler error); attestations are stored as little-endian Bytes<32>
+//     via the `Secp256k1Scalar as Bytes<32>` cast instead.
+
+import CompactStandardLibrary;
+
+// A ledger-storable ECDSA signature: r and s as LITTLE-ENDIAN 32-byte values
+// (the byte order `Secp256k1Scalar as Bytes<32>` produces). Secp256k1Scalar
+// itself cannot live in ledger state; see the module header.
+export struct EcdsaAttestation {
+  r: Bytes<32>;
+  s: Bytes<32>;
+}
+
+// Number of DISTINCT message hashes attested so far.
+export ledger attestationCount: Counter;
+
+// The MPC attestation key, pinned at deploy time: postAttestation accepts
+// only signatures verifying against this key.
+export sealed ledger mpcPubKeyHash: Bytes<32>;
+
+// msgHash -> the verified signature that attested it. Every stored entry is
+// authentic by construction (verified in-circuit before insert).
+export ledger attestations: Map<Bytes<32>, EcdsaAttestation>;
+
+constructor(mpcPk: Secp256k1Point) {
+  mpcPubKeyHash = disclose(persistentHash<Secp256k1Point>(mpcPk));
+}
+
+// verifyEcdsa exposes the standard-library ECDSA check as a pure circuit so
+// clients (and tests) recompute exactly what the contract enforces on-chain.
+// msgHash is interpreted as a BIG-ENDIAN integer reduced mod the curve order,
+// per the ECDSA convention (RFC 6979), the same convention Ethereum and
+// Bitcoin signatures use.
+export pure circuit verifyEcdsa(
+  msgHash: Bytes<32>,
+  sig: Secp256k1EcdsaSignature,
+  pk: Secp256k1Point
+): Boolean {
+  return secp256k1EcdsaVerify(msgHash, sig, pk);
+}
+
+// ethereumAddress derives the Ethereum address of a secp256k1 public key
+// in-circuit (keccak256 of the uncompressed point, last 20 bytes). Relevant
+// to signet: a contract can bind the MPC key to its Ethereum address without
+// trusting an off-chain conversion.
+export pure circuit ethereumAddress(pk: Secp256k1Point): Bytes<20> {
+  return secp256k1EthereumAddress(pk);
+}
+
+// mpcKeyHash recomputes the deploy-time key pin so clients can check a
+// candidate key against the sealed ledger value without re-deploying.
+export pure circuit mpcKeyHash(pk: Secp256k1Point): Bytes<32> {
+  return persistentHash<Secp256k1Point>(pk);
+}
+
+// postAttestation records the MPC's ECDSA attestation of msgHash. Anyone may
+// POST, but nothing unauthentic can LAND: the signature is verified in-circuit
+// against the sealed MPC key, so the stored record is authentic by
+// construction; clients read it without re-verifying. This is the ECDSA
+// counterpart of the signet contract's postRespondBidirectional.
+export circuit postAttestation(
+  msgHash: Bytes<32>,
+  sig: Secp256k1EcdsaSignature,
+  pk: Secp256k1Point
+): [] {
+  // Everything stored here is public by construction.
+  const disclosedMsgHash = disclose(msgHash);
+  const disclosedSig = disclose(sig);
+  const disclosedPk = disclose(pk);
+
+  // Only the pinned MPC key may attest.
+  assert(
+    persistentHash<Secp256k1Point>(disclosedPk) == mpcPubKeyHash,
+    "unauthorized: attestation pk is not the MPC key"
+  );
+
+  // The attestation must sign THIS message hash.
+  assert(
+    secp256k1EcdsaVerify(disclosedMsgHash, disclosedSig, disclosedPk),
+    "Invalid attestation signature"
+  );
+
+  // First valid write wins; a re-post is a no-op, never an overwrite.
+  if (attestations.member(disclosedMsgHash)) {
+    return [];
+  }
+  attestations.insert(
+    disclosedMsgHash,
+    EcdsaAttestation {
+      r: disclosedSig.r as Bytes<32>,
+      s: disclosedSig.s as Bytes<32>,
+    }
+  );
+  attestationCount.increment(1);
+}

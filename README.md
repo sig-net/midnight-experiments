@@ -58,6 +58,7 @@ Current experiments:
 | [xcall](experiments/xcall) | benchmark | Cost of 0/1/2 cross-contract calls, a 256-byte call argument, and a callee that emits. |
 | [xcall-with-payment](experiments/xcall-with-payment) | feature | Can a shielded coin cross a contract call? (No, plus the atomic two-root-call workaround that does work.) |
 | [xcontract-events](experiments/xcontract-events) | feature | Cross-contract calls + MIP-0002 custom events, end to end, with a knowledge-base distilled from the spike. |
+| [ecdsa](experiments/ecdsa) | feature | In-circuit secp256k1 ECDSA verification (`secp256k1EcdsaVerify`, ZKIR v3): the replacement for JubJub Schnorr attestation gating, with a knowledge-base for the signet upgrade. |
 
 Every benchmark variant embeds the **identical base workload** (counter
 increment + scalar ledger write + map insert), so any delta against the
