@@ -1,0 +1,1 @@
+This is an experiments repository. The goal is to be able to run minimal examples testing out midnight blockchain features before moving them into other repositories.
