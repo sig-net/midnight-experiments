@@ -57,6 +57,8 @@ Current experiments:
 | [events](experiments/events) | benchmark | Cost of firing 0/1/2/4 `Misc` events per call (payload fixed at `Bytes<256>`). |
 | [hashing](experiments/hashing) | benchmark | Persistent vs transient hashing over 32/256/1024 B (+ controls isolating large-input cost). |
 | [xcall](experiments/xcall) | benchmark | Cost of 0/1/2 cross-contract calls, a 256-byte call argument, and a callee that emits. |
+| [keccak](experiments/keccak) | benchmark | `keccak256` vs `persistentHash` (SHA-256) proving cost over identical 64/128/256 B inputs (+ controls). Decides the signet attestation digest hash. |
+| [attest](experiments/attest) | benchmark | The keccak experiment's tiebreaker: SHA-256 vs keccak digests inside a realistic circuit (hash + secp256k1EcdsaVerify + map write), simulating signet attestation verification. |
 | [xcall-with-payment](experiments/xcall-with-payment) | feature | Can a shielded coin cross a contract call? (No, plus the atomic two-root-call workaround that does work.) |
 | [serde-builtin](experiments/serde-builtin) | feature | The exact byte layout of the builtin `serialize<T,N>`/`deserialize<T,N>` pair, pinned against a byte-identical TypeScript twin encoder. |
 | [xcontract-events](experiments/xcontract-events) | feature | Cross-contract calls + MIP-0002 custom events, end to end, with a knowledge-base distilled from the spike. |

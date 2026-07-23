@@ -1,0 +1,25 @@
+{
+  "name": "@midnight-experiments/keccak-contract",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Benchmark experiment: keccak256 vs persistentHash (SHA-256) proving cost over identical flat byte inputs (64/128/256 B), with input-size controls. Needs --feature-zkir-v3: keccak256 is not supported in ZKIR v2.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "compile": "compact compile --skip-zk --feature-zkir-v3 src/keccak.compact src/managed/keccak",
+    "compile:zk": "compact compile --feature-zkir-v3 src/keccak.compact src/managed/keccak",
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@midnight-experiments/lib": "*",
+    "@midnight-ntwrk/compact-runtime": "0.18.0-rc.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}

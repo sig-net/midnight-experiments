@@ -1,0 +1,21 @@
+{
+  "name": "@midnight-experiments/keccak-integration-tests",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Live benchmark suite for the keccak experiment: deploys the experiment contract against the local Midnight stack and drives every measured circuit through the instrumented proof provider. Gated by RUN_INTEGRATION_TESTS; requires `yarn compile:zk` output and a running node + indexer + proof server.",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests",
+    "bench": "RUN_INTEGRATION_TESTS=1 vitest run tests/ --bail 1 --disable-console-intercept"
+  },
+  "dependencies": {
+    "@midnight-experiments/keccak-contract": "*",
+    "@midnight-experiments/test-harness-benchmark": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}

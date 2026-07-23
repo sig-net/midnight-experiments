@@ -397,6 +397,33 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@midnight-experiments/attest-contract@npm:*, @midnight-experiments/attest-contract@workspace:experiments/attest/contract":
+  version: 0.0.0-use.local
+  resolution: "@midnight-experiments/attest-contract@workspace:experiments/attest/contract"
+  dependencies:
+    "@midnight-experiments/lib": "npm:*"
+    "@midnight-ntwrk/compact-runtime": "npm:0.18.0-rc.1"
+    "@noble/curves": "npm:^2.2.0"
+    "@noble/hashes": "npm:^2.0.1"
+    "@sig-net/midnight-serde": "portal:../../../../midnight-integration/packages/midnight-serde"
+    "@types/node": "npm:^26.1.0"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.9"
+  languageName: unknown
+  linkType: soft
+
+"@midnight-experiments/attest-integration-tests@workspace:experiments/attest/integration-tests":
+  version: 0.0.0-use.local
+  resolution: "@midnight-experiments/attest-integration-tests@workspace:experiments/attest/integration-tests"
+  dependencies:
+    "@midnight-experiments/attest-contract": "npm:*"
+    "@midnight-experiments/test-harness-benchmark": "npm:*"
+    "@types/node": "npm:^26.1.0"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.9"
+  languageName: unknown
+  linkType: soft
+
 "@midnight-experiments/baseline-contract@npm:*, @midnight-experiments/baseline-contract@workspace:experiments/baseline/contract":
   version: 0.0.0-use.local
   resolution: "@midnight-experiments/baseline-contract@workspace:experiments/baseline/contract"
@@ -462,6 +489,30 @@ __metadata:
   resolution: "@midnight-experiments/hashing-integration-tests@workspace:experiments/hashing/integration-tests"
   dependencies:
     "@midnight-experiments/hashing-contract": "npm:*"
+    "@midnight-experiments/test-harness-benchmark": "npm:*"
+    "@types/node": "npm:^26.1.0"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.9"
+  languageName: unknown
+  linkType: soft
+
+"@midnight-experiments/keccak-contract@npm:*, @midnight-experiments/keccak-contract@workspace:experiments/keccak/contract":
+  version: 0.0.0-use.local
+  resolution: "@midnight-experiments/keccak-contract@workspace:experiments/keccak/contract"
+  dependencies:
+    "@midnight-experiments/lib": "npm:*"
+    "@midnight-ntwrk/compact-runtime": "npm:0.18.0-rc.1"
+    "@types/node": "npm:^26.1.0"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.9"
+  languageName: unknown
+  linkType: soft
+
+"@midnight-experiments/keccak-integration-tests@workspace:experiments/keccak/integration-tests":
+  version: 0.0.0-use.local
+  resolution: "@midnight-experiments/keccak-integration-tests@workspace:experiments/keccak/integration-tests"
+  dependencies:
+    "@midnight-experiments/keccak-contract": "npm:*"
     "@midnight-experiments/test-harness-benchmark": "npm:*"
     "@types/node": "npm:^26.1.0"
     typescript: "npm:^6.0.3"
@@ -1992,6 +2043,12 @@ __metadata:
   checksum: 10c0/939f5da033a97130e1620e04bb0df069e63cdc4c9b5651c1bda880c97ce56233f6c556b3dc097268d0c63e42f19203ec784912dd5b1979c30afd4f8c49339535
   languageName: node
   linkType: hard
+
+"@sig-net/midnight-serde@portal:../../../../midnight-integration/packages/midnight-serde::locator=%40midnight-experiments%2Fattest-contract%40workspace%3Aexperiments%2Fattest%2Fcontract":
+  version: 0.0.0-use.local
+  resolution: "@sig-net/midnight-serde@portal:../../../../midnight-integration/packages/midnight-serde::locator=%40midnight-experiments%2Fattest-contract%40workspace%3Aexperiments%2Fattest%2Fcontract"
+  languageName: node
+  linkType: soft
 
 "@sig-net/midnight@npm:^0.0.4":
   version: 0.0.4

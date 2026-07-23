@@ -1,7 +1,7 @@
 # Compact performance study — circuit size, proof size, proving time
 
-Generated 2026-07-18T18:01:11.750Z from 4 recorded benchmark run(s)
-(latest: `2026-07-18T17:41:08Z`; reps per circuit: 2). Each circuit
+Generated 2026-07-23T19:15:04.191Z from 11 recorded benchmark run(s)
+(latest: `2026-07-23T19:13:20.196Z`; reps per circuit: 2). Each circuit
 row shows its MOST RECENT measurement, so single-experiment runs (see the
 "run it" lines above each table) refresh one row without invalidating the rest.
 
@@ -109,6 +109,43 @@ Run it (stack up — `docker compose up -d` — and keys compiled):
 | `callEmit` | `callEmit` | 1 | 0.16s | 2,940 B | 590 B |
 | `callEmit` | `depositEmit` | 1 | 5.70s | 2,940 B | 463 B |
 
+## Experiment: keccak
+
+Run it (stack up — `docker compose up -d` — and keys compiled):
+
+- compile keys: `yarn compile:zk:keccak` — per CONTRACT: a `.compact` file compiles as one unit, so there is no per-circuit compile.
+- run every circuit: `yarn bench:keccak`
+- run one circuit: `yarn bench:keccak-<circuit>`, e.g. `yarn bench:keccak-k256` — deploys a fresh contract and drives just that circuit. Any subset: `BENCH_CIRCUITS=c64,c128 yarn bench:keccak`.
+- refresh this report: `yarn report` (updates only the rows you re-ran).
+
+| circuit | zkir instrs | prover key | verifier key | prove (mean, all proofs) | proof bytes (total) | check (mean) | callTx e2e (mean) | n |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `c64` | 6 | 224,116 B | 1,353 B | 0.53s | 3,852 B | 0.02s | 17.99s | 2 |
+| `c128` | 8 | 445,342 B | 1,353 B | 0.17s | 3,852 B | 0.01s | 18.02s | 2 |
+| `c256` | 12 | 887,795 B | 1,353 B | 0.23s | 3,852 B | 0.01s | 18.06s | 2 |
+| `p64` | 11 | 11,276,889 B | 2,121 B | 1.06s | 5,420 B | 0.05s | 18.07s | 2 |
+| `p128` | 13 | 11,276,949 B | 2,121 B | 1.04s | 5,420 B | 0.06s | 18.04s | 2 |
+| `p256` | 17 | 22,549,266 B | 2,121 B | 1.90s | 5,420 B | 0.10s | 24.09s | 2 |
+| `k64` | 11 | 22,024,693 B | 2,073 B | 2.46s | 8,156 B | 0.09s | 24.07s | 2 |
+| `k128` | 13 | 22,024,753 B | 2,073 B | 2.48s | 8,156 B | 0.10s | 23.44s | 2 |
+| `k256` | 17 | 22,024,878 B | 2,073 B | 2.82s | 8,156 B | 0.09s | 24.08s | 2 |
+
+## Experiment: attest
+
+Run it (stack up — `docker compose up -d` — and keys compiled):
+
+- compile keys: `yarn compile:zk:attest` — per CONTRACT: a `.compact` file compiles as one unit, so there is no per-circuit compile.
+- run every circuit: `yarn bench:attest`
+- run one circuit: `yarn bench:attest-<circuit>`, e.g. `yarn bench:attest-keccakVerify` — deploys a fresh contract and drives just that circuit. Any subset: `BENCH_CIRCUITS=mapOnly,verifyOnly yarn bench:attest`.
+- refresh this report: `yarn report` (updates only the rows you re-ran).
+
+| circuit | zkir instrs | prover key | verifier key | prove (mean, all proofs) | proof bytes (total) | check (mean) | callTx e2e (mean) | n |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `mapOnly` | 10 | 224,273 B | 1,353 B | 0.14s | 3,852 B | 0.01s | 17.95s | 2 |
+| `verifyOnly` | 98 | 42,998,278 B | 2,025 B | 3.24s | 5,244 B | 0.18s | 24.02s | 2 |
+| `shaVerify` | 156 | 117,450,541 B | 2,745 B | 9.47s | 6,364 B | 0.48s | 30.04s | 2 |
+| `keccakVerify` | 156 | 111,158,785 B | 2,601 B | 9.35s | 9,244 B | 0.44s | 29.97s | 2 |
+
 ## Computed comparisons (construct cost = to − from)
 
 | construct | circuits | zkir instrs | prove time | proof bytes |
@@ -127,6 +164,19 @@ Run it (stack up — `docker compose up -d` — and keys compiled):
 | transientHash 256 B | `control256` → `transient256` | 24 → 44 (1.83×) | 0.29s → 0.30s (1.02×) | 2,940 B → 2,940 B |
 | transientHash 1024 B | `control1024` → `transient1024` | 49 → 69 (1.41×) | 0.93s → 0.77s (0.83×) | 2,940 B → 2,940 B |
 | vector vs flat 256 B | `persistent256` → `persistentVec8` | 44 → 51 (1.16×) | 1.11s → 1.06s (0.95×) | 4,508 B → 4,508 B |
+| sha256 64 B (zkir-v3) | `c64` → `p64` | 6 → 11 (1.83×) | 0.53s → 1.06s (1.99×) | 3,852 B → 5,420 B |
+| sha256 128 B (zkir-v3) | `c128` → `p128` | 8 → 13 (1.63×) | 0.17s → 1.04s (6.08×) | 3,852 B → 5,420 B |
+| sha256 256 B (zkir-v3) | `c256` → `p256` | 12 → 17 (1.42×) | 0.23s → 1.90s (8.37×) | 3,852 B → 5,420 B |
+| keccak256 64 B | `c64` → `k64` | 6 → 11 (1.83×) | 0.53s → 2.46s (4.61×) | 3,852 B → 8,156 B |
+| keccak256 128 B | `c128` → `k128` | 8 → 13 (1.63×) | 0.17s → 2.48s (14.50×) | 3,852 B → 8,156 B |
+| keccak256 256 B | `c256` → `k256` | 12 → 17 (1.42×) | 0.23s → 2.82s (12.45×) | 3,852 B → 8,156 B |
+| keccak vs sha256 64 B | `p64` → `k64` | 11 → 11 (1.00×) | 1.06s → 2.46s (2.31×) | 5,420 B → 8,156 B |
+| keccak vs sha256 128 B | `p128` → `k128` | 13 → 13 (1.00×) | 1.04s → 2.48s (2.38×) | 5,420 B → 8,156 B |
+| keccak vs sha256 256 B | `p256` → `k256` | 17 → 17 (1.00×) | 1.90s → 2.82s (1.49×) | 5,420 B → 8,156 B |
+| ecdsa verify (attest) | `mapOnly` → `verifyOnly` | 10 → 98 (9.80×) | 0.14s → 3.24s (23.65×) | 3,852 B → 5,244 B |
+| sha256 digest in verify circuit | `verifyOnly` → `shaVerify` | 98 → 156 (1.59×) | 3.24s → 9.47s (2.92×) | 5,244 B → 6,364 B |
+| keccak digest in verify circuit | `verifyOnly` → `keccakVerify` | 98 → 156 (1.59×) | 3.24s → 9.35s (2.88×) | 5,244 B → 9,244 B |
+| ATTEST: keccak vs sha256 | `shaVerify` → `keccakVerify` | 156 → 156 (1.00×) | 9.47s → 9.35s (0.99×) | 6,364 B → 9,244 B |
 
 ## Deploys (most recent per contract)
 
@@ -139,3 +189,5 @@ Run it (stack up — `docker compose up -d` — and keys compiled):
 | xcall | caller | 17.40s | `81973793a713737e25c2a2599b098d2fd4bc74fb37ffe7a212ceabfb831cae84` |
 | xcall-payment | target | 20.40s | `f19b7273efa31485eb220c37b0a1fc1d0d3c23dea07286ca2fc0b5ce285306c1` |
 | xcall-payment | caller | 17.42s | `02b32a96d9d3ef045aa1d61b992fd3b21b550a7efd02a718b22af5f89bfa87ee` |
+| keccak | keccak | 16.08s | `f7a18fa4cadf44feddb32a7f673530f31cfcfe7fd85c9bbc743cd821126b4dd7` |
+| attest | attest | 14.97s | `39fe278b33556bf0ce32781cce80b8acbc7b28b9439bb5fc44030fad23e6846b` |

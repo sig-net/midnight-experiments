@@ -1,0 +1,28 @@
+{
+  "name": "@midnight-experiments/attest-contract",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Benchmark experiment: the simulated signet attestation flow (hash request id + output, secp256k1EcdsaVerify, mark request verified in a map), with SHA-256 vs keccak256 digests plus ECDSA-only and map-only controls. Needs --feature-zkir-v3.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "compile": "compact compile --skip-zk --feature-zkir-v3 src/attest.compact src/managed/attest",
+    "compile:zk": "compact compile --feature-zkir-v3 src/attest.compact src/managed/attest",
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@midnight-experiments/lib": "*",
+    "@midnight-ntwrk/compact-runtime": "0.18.0-rc.1",
+    "@noble/curves": "^2.2.0",
+    "@noble/hashes": "^2.0.1",
+    "@sig-net/midnight-serde": "portal:../../../../midnight-integration/packages/midnight-serde"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}

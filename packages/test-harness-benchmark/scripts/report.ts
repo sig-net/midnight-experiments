@@ -28,6 +28,8 @@ const CONTRACTS: { experiment: string; contract: string; managedPath: string }[]
   { experiment: "baseline", contract: "baseline", managedPath: "experiments/baseline/contract/src/managed/baseline" },
   { experiment: "events", contract: "events", managedPath: "experiments/events/contract/src/managed/events" },
   { experiment: "hashing", contract: "hashing", managedPath: "experiments/hashing/contract/src/managed/hashing" },
+  { experiment: "keccak", contract: "keccak", managedPath: "experiments/keccak/contract/src/managed/keccak" },
+  { experiment: "attest", contract: "attest", managedPath: "experiments/attest/contract/src/managed/attest" },
   { experiment: "xcall", contract: "caller", managedPath: "experiments/xcall/contract/src/managed/caller" },
   { experiment: "xcall", contract: "target", managedPath: "experiments/xcall/contract/src/managed/target" },
 ];
@@ -185,6 +187,16 @@ const PLANS: { experiment: string; contractKey: string; circuits: string[] }[] =
     contractKey: "xcall/caller",
     circuits: ["localBase", "callOnce", "callTwice", "callBig", "callEmit"],
   },
+  {
+    experiment: "keccak",
+    contractKey: "keccak/keccak",
+    circuits: ["c64", "c128", "c256", "p64", "p128", "p256", "k64", "k128", "k256"],
+  },
+  {
+    experiment: "attest",
+    contractKey: "attest/attest",
+    circuits: ["mapOnly", "verifyOnly", "shaVerify", "keccakVerify"],
+  },
 ];
 
 const sections: string[] = [];
@@ -309,6 +321,19 @@ const COMPARISONS: Comparison[] = [
   { label: "transientHash 256 B", experiment: "hashing", contractKey: "hashing/hashing", from: "control256", to: "transient256" },
   { label: "transientHash 1024 B", experiment: "hashing", contractKey: "hashing/hashing", from: "control1024", to: "transient1024" },
   { label: "vector vs flat 256 B", experiment: "hashing", contractKey: "hashing/hashing", from: "persistent256", to: "persistentVec8" },
+  { label: "sha256 64 B (zkir-v3)", experiment: "keccak", contractKey: "keccak/keccak", from: "c64", to: "p64" },
+  { label: "sha256 128 B (zkir-v3)", experiment: "keccak", contractKey: "keccak/keccak", from: "c128", to: "p128" },
+  { label: "sha256 256 B (zkir-v3)", experiment: "keccak", contractKey: "keccak/keccak", from: "c256", to: "p256" },
+  { label: "keccak256 64 B", experiment: "keccak", contractKey: "keccak/keccak", from: "c64", to: "k64" },
+  { label: "keccak256 128 B", experiment: "keccak", contractKey: "keccak/keccak", from: "c128", to: "k128" },
+  { label: "keccak256 256 B", experiment: "keccak", contractKey: "keccak/keccak", from: "c256", to: "k256" },
+  { label: "keccak vs sha256 64 B", experiment: "keccak", contractKey: "keccak/keccak", from: "p64", to: "k64" },
+  { label: "keccak vs sha256 128 B", experiment: "keccak", contractKey: "keccak/keccak", from: "p128", to: "k128" },
+  { label: "keccak vs sha256 256 B", experiment: "keccak", contractKey: "keccak/keccak", from: "p256", to: "k256" },
+  { label: "ecdsa verify (attest)", experiment: "attest", contractKey: "attest/attest", from: "mapOnly", to: "verifyOnly" },
+  { label: "sha256 digest in verify circuit", experiment: "attest", contractKey: "attest/attest", from: "verifyOnly", to: "shaVerify" },
+  { label: "keccak digest in verify circuit", experiment: "attest", contractKey: "attest/attest", from: "verifyOnly", to: "keccakVerify" },
+  { label: "ATTEST: keccak vs sha256", experiment: "attest", contractKey: "attest/attest", from: "shaVerify", to: "keccakVerify" },
 ];
 
 const comparisonRows: string[][] = [];
