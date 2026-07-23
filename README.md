@@ -58,6 +58,7 @@ Current experiments:
 | [hashing](experiments/hashing) | benchmark | Persistent vs transient hashing over 32/256/1024 B (+ controls isolating large-input cost). |
 | [xcall](experiments/xcall) | benchmark | Cost of 0/1/2 cross-contract calls, a 256-byte call argument, and a callee that emits. |
 | [xcall-with-payment](experiments/xcall-with-payment) | feature | Can a shielded coin cross a contract call? (No, plus the atomic two-root-call workaround that does work.) |
+| [serde-builtin](experiments/serde-builtin) | feature | The exact byte layout of the builtin `serialize<T,N>`/`deserialize<T,N>` pair, pinned against a byte-identical TypeScript twin encoder. |
 | [xcontract-events](experiments/xcontract-events) | feature | Cross-contract calls + MIP-0002 custom events, end to end, with a knowledge-base distilled from the spike. |
 
 Every benchmark variant embeds the **identical base workload** (counter
