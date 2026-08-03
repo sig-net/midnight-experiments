@@ -37,6 +37,28 @@ Layout of `serialize<T, N>` (compactc 0.33.0, language 0.25, runtime 0.18.0-rc.1
 - **Rejects** an out-of-range `Field` encoding at runtime (range error), so a
   32-byte word at or above the modulus can never enter a circuit as `Field`.
 
+### Not the ledger object serialization
+
+The ledger crate and the Wallet SDK expose a `.serialize()` on ledger objects
+(`ContractState`, `ContractOperation`, transactions). That is a DIFFERENT
+format from `serialize<T, N>` and cannot substitute for it, pinned in
+[`contract/tests/ledger-object-format.test.ts`](contract/tests/ledger-object-format.test.ts)
+by encoding the same `UintPair` value both ways:
+
+- The ledger format is self-describing and versioned: it opens with the ASCII
+  tag `midnight:contract-state[v8]:` (v8 at ledger 1.0.0-rc.3), so its bytes
+  change across ledger versions by construction. The circuit format has no
+  header at all.
+- Stripping the tag does not help. The remainder is an object-tree encoding
+  that frames each FAB atom individually at minimal width. The contiguous
+  packed sequence `serialize<T, N>` emits appears nowhere in it, and feeding
+  the stripped bytes to `deserialize<UintPair, 128>` decodes garbage.
+- The two formats ARE related, one level down: both are built from the same
+  FAB atoms (`CompactType.toValue` in compact-runtime). `serialize<T, N>` is
+  exactly those atoms padded to the widths their alignment declares,
+  concatenated and right zero-padded to N. The ledger format wraps the same
+  atoms in its versioned tree instead.
+
 Implications for the signet respond schemas:
 
 - An EVM `uint256` has **no lossless Compact carrier**: `Uint<w>` stops at 248
@@ -65,6 +87,11 @@ Implications for the signet respond schemas:
   offline, in-process against the compiled circuits. Pins the layout
   byte-for-byte, proves twin/circuit byte-equality in both directions, and pins
   the failure modes above.
+- [`contract/tests/ledger-object-format.test.ts`](contract/tests/ledger-object-format.test.ts):
+  offline. Pins that the ledger/Wallet-SDK object serialization is a tagged,
+  versioned format distinct from `serialize<T, N>`, that stripping its tag
+  does not yield circuit-decodable bytes, and that the two formats share only
+  their underlying FAB atoms.
 - [`integration-tests/tests/serde-builtin.test.ts`](integration-tests/tests/serde-builtin.test.ts):
   live, gated by `RUN_INTEGRATION_TESTS`. Deploys the contract and submits
   `checkRoundtrip` with bytes encoded entirely off-chain, so an accepted proof
