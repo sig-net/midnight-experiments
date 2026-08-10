@@ -1,0 +1,25 @@
+{
+  "name": "@midnight-experiments/mint-tokens",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Control experiment: the shared workload (logic + mint + storage) with no events, no cross-contract calls, no explicit hashing — plus an empty `noop` circuit as the proof-system floor.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "compile": "compact compile --skip-zk src/mint-tokens.compact src/managed/mint-tokens",
+    "compile:zk": "compact compile src/mint-tokens.compact src/managed/mint-tokens",
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@midnight-experiments/lib": "*",
+    "@midnight-ntwrk/compact-runtime": "0.18.0-rc.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}

@@ -549,6 +549,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@midnight-experiments/mint-tokens@workspace:experiments/mint-tokens/contract":
+  version: 0.0.0-use.local
+  resolution: "@midnight-experiments/mint-tokens@workspace:experiments/mint-tokens/contract"
+  dependencies:
+    "@midnight-experiments/lib": "npm:*"
+    "@midnight-ntwrk/compact-runtime": "npm:0.18.0-rc.1"
+    "@types/node": "npm:^26.1.0"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.9"
+  languageName: unknown
+  linkType: soft
+
 "@midnight-experiments/serde-builtin-contract@npm:*, @midnight-experiments/serde-builtin-contract@workspace:experiments/serde-builtin/contract":
   version: 0.0.0-use.local
   resolution: "@midnight-experiments/serde-builtin-contract@workspace:experiments/serde-builtin/contract"
