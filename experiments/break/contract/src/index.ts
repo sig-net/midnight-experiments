@@ -1,0 +1,80 @@
+import { fileURLToPath } from "node:url";
+
+import { findDeployedContract } from "@midnight-ntwrk/midnight-js/contracts";
+import { NodeZkConfigProvider } from "@midnight-ntwrk/midnight-js-node-zk-config-provider";
+import type { WalletFacade } from "@midnightntwrk/wallet-sdk-facade";
+
+import {
+  buildExperimentProviders,
+  createCrossContractProofServerProvider,
+  createEmptyPrivateState,
+  deployWithFacade,
+  makeVacantCompiledContract,
+  type AccountKeys,
+  type EmptyPrivateState,
+  type MidnightNodeConfig,
+  type NetworkId,
+} from "@midnight-experiments/lib";
+import { contractAddressFromHex } from "@sig-net/midnight";
+
+import { Contract as BreakContract } from "./managed/break/contract/index.js";
+
+export * as Break from "./managed/break/contract/index.js";
+
+export type BreakCircuitId = keyof InstanceType<typeof BreakContract>["provableCircuits"] & string;
+export const BREAK_PRIVATE_STATE_ID = "exp-break-break";
+export type BreakPrivateStateId = typeof BREAK_PRIVATE_STATE_ID;
+
+export const breakManagedPath = fileURLToPath(new URL("./managed/break", import.meta.url));
+
+export const breakCompiledContract = makeVacantCompiledContract<
+  BreakContract<EmptyPrivateState>,
+  EmptyPrivateState
+>("break-break", BreakContract, breakManagedPath);
+
+/** Address the break contract seals as its `SignetSigner` reference. */
+export const SIGNET_CONTRACT_ADDRESS = "0xb37b9ce8bb468e60159504e502f6400cb5184e681e642003f4a23322839bc68b";
+
+/** Deploy the break contract through an already-open facade, sealing {@link SIGNET_CONTRACT_ADDRESS}. */
+export async function deployBreak(facade: WalletFacade, keys: AccountKeys, networkId: NetworkId) {
+  return deployWithFacade(
+    facade,
+    keys,
+    networkId,
+    breakCompiledContract,
+    createEmptyPrivateState(),
+    contractAddressFromHex(SIGNET_CONTRACT_ADDRESS),
+  );
+}
+
+/**
+ * Find the deployed break contract, ready for `callTx.<circuit>(...)`.
+ *
+ * @param facade - A started (and synced) wallet facade that pays for the calls.
+ * @param keys - The key material of the same wallet.
+ * @param config - The Midnight network endpoints to run against.
+ * @param contractAddress - Where {@link deployBreak} put the contract.
+ */
+export async function findDeployedBreak(
+  facade: WalletFacade,
+  keys: AccountKeys,
+  config: MidnightNodeConfig,
+  contractAddress: string,
+) {
+  const breakZkConfigProvider = new NodeZkConfigProvider<BreakCircuitId>(breakManagedPath);
+  const providers = buildExperimentProviders<BreakCircuitId, BreakPrivateStateId>(
+    facade,
+    keys,
+    config,
+    "exp-break",
+    breakZkConfigProvider,
+    // Must list a zk-config provider for every contract a break circuit calls into.
+    createCrossContractProofServerProvider(config.proofServerUrl, [breakZkConfigProvider]),
+  );
+  return findDeployedContract(providers, {
+    contractAddress,
+    compiledContract: breakCompiledContract,
+    privateStateId: BREAK_PRIVATE_STATE_ID,
+    initialPrivateState: createEmptyPrivateState(),
+  });
+}

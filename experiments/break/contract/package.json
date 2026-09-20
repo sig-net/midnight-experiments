@@ -1,0 +1,28 @@
+{
+  "name": "@midnight-experiments/break-contract",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Try Break Signet Protocol",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "compile": "COMPACT_PATH=../../../node_modules compact compile --skip-zk src/break.compact src/managed/break",
+    "compile:zk": "COMPACT_PATH=../../../node_modules compact compile src/break.compact src/managed/break",
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@midnight-experiments/lib": "*",
+    "@midnight-ntwrk/compact-runtime": "0.18.0-rc.1",
+    "@midnight-ntwrk/midnight-js": "5.0.0-beta.4",
+    "@midnight-ntwrk/midnight-js-node-zk-config-provider": "5.0.0-beta.4",
+    "@sig-net/midnight": "0.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}

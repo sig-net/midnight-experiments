@@ -31,7 +31,13 @@ export const eventsCompiledContract = makeVacantCompiledContract<
 
 /** Deploy the events contract through an already-open facade. */
 export async function deployEvents(facade: WalletFacade, keys: AccountKeys, networkId: NetworkId) {
-  return deployWithFacade(facade, keys, networkId, eventsCompiledContract, createEmptyPrivateState());
+  return deployWithFacade(
+    facade,
+    keys,
+    networkId,
+    eventsCompiledContract,
+    createEmptyPrivateState(),
+  );
 }
 
 const RECIPIENT = Uint8Array.from({ length: 32 }, (_, i) => i + 1);

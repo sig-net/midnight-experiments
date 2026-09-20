@@ -1,0 +1,18 @@
+pragma language_version >= 0.25;
+
+import CompactStandardLibrary;
+import "@sig-net/midnight/src/Signet";
+
+sealed ledger signetSigner: SignetSigner;
+
+constructor(
+  signetContract: SignetSigner,
+) {
+  signetSigner = disclose(signetContract);
+}
+
+export ledger ledgerNothing: Uint<128>;
+
+export circuit doNothing(nothing: Uint<128>): [] {
+  ledgerNothing = disclose(nothing);
+}
