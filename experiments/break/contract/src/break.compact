@@ -12,50 +12,68 @@ constructor(
   signetSigner = disclose(signetContract);
 }
 
-// Every request field except the sender comes straight from the caller,
-// unvalidated. requestsPathDepth + requestsPath are the notification's pointer
-// to signBidirectionalEventMap (its "index" in compiler/contract-info.json).
+// One signature request's caller-supplied fields. The sender (kernel.self())
+// and the caip2Id (ethereumCaip2Id()) are set by the contract.
+export struct BreakRequest {
+  requestNonce: Uint<64>;
+  keyVersion: Uint<8>;
+  path: Bytes<32>;
+  algo: MPCSignatureAlgorithm;
+  dest: MPCDestination;
+  params: Bytes<64>;
+  txParamType: TxParamType;
+  txParams: EvmType2TxParams<2, 0, 0>;
+  outputDeserializationSchema: Bytes<34>;
+  respondSerializationSchema: Bytes<34>;
+}
+
+circuit constructBreakEvent(
+  breakRequest: BreakRequest
+): SignBidirectionalEvent<EvmType2TxParams<2, 0, 0>, 34, 34> {
+  return constructSignBidirectionalEvent<EvmType2TxParams<2, 0, 0>, 34, 34>(
+    kernel.self(),
+    breakRequest.requestNonce,
+    breakRequest.keyVersion,
+    breakRequest.path,
+    breakRequest.algo,
+    breakRequest.dest,
+    breakRequest.params,
+    breakRequest.txParamType,
+    breakRequest.txParams,
+    ethereumCaip2Id(),
+    breakRequest.outputDeserializationSchema,
+    breakRequest.respondSerializationSchema
+  );
+}
+
+// Stores every request unvalidated and notifies the signet contract once per
+// request, all in one transaction. requestsPathDepth + requestsPath are the
+// notifications' pointer to signBidirectionalEventMap (its "index" in
+// compiler/contract-info.json).
 export circuit requestSignature(
-  requestNonce: Uint<64>,
-  keyVersion: Uint<8>,
-  path: Bytes<32>,
-  algo: MPCSignatureAlgorithm,
-  dest: MPCDestination,
-  params: Bytes<64>,
-  txParamType: TxParamType,
-  txParams: EvmType2TxParams<2, 0, 0>,
-  caip2Id: Bytes<32>,
-  outputDeserializationSchema: Bytes<34>,
-  respondSerializationSchema: Bytes<34>,
+  breakRequests: Vector<16, BreakRequest>,
   requestsPathDepth: Uint<8>,
   requestsPath: Vector<4, Uint<8>>,
-): RequestId {
-  const request = disclose(constructSignBidirectionalEvent<EvmType2TxParams<2, 0, 0>, 34, 34>(
-    kernel.self(),
-    requestNonce,
-    keyVersion,
-    path,
-    algo,
-    dest,
-    params,
-    txParamType,
-    txParams,
-    caip2Id,
-    outputDeserializationSchema,
-    respondSerializationSchema
-  ));
-  const requestId = calculateRequestId<EvmType2TxParams<2, 0, 0>, 34, 34>(request);
+): Vector<16, RequestId> {
+  const signEvents = disclose(map(constructBreakEvent, breakRequests));
 
-  signBidirectionalEventMap.insert(requestId, request);
+  for (const signEvent of signEvents) {
+    const requestId = calculateRequestId<EvmType2TxParams<2, 0, 0>, 34, 34>(signEvent);
 
-  signetSigner.signBidirectional(
-    requestId,
-    constructSignBidirectionalEventNotificationV1(
-      kernel.self(),
-      disclose(requestsPathDepth),
-      disclose(requestsPath),
-    ),
+    signBidirectionalEventMap.insert(requestId, signEvent);
+
+    signetSigner.signBidirectional(
+      requestId,
+      constructSignBidirectionalEventNotificationV1(
+        kernel.self(),
+        disclose(requestsPathDepth),
+        disclose(requestsPath),
+      ),
+    );
+  }
+
+  return map(
+    (signEvent) => calculateRequestId<EvmType2TxParams<2, 0, 0>, 34, 34>(signEvent),
+    signEvents
   );
-
-  return requestId;
 }

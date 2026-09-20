@@ -55,21 +55,16 @@ export async function deployBreak(facade: WalletFacade, keys: AccountKeys, netwo
 }
 
 /**
- * Find the deployed break contract, ready for `callTx.<circuit>(...)`.
+ * The midnight-js provider set for the break contract, proving across break
+ * and the signet contract it calls.
  *
  * @param facade - A started (and synced) wallet facade that pays for the calls.
  * @param keys - The key material of the same wallet.
  * @param config - The Midnight network endpoints to run against.
- * @param contractAddress - Where {@link deployBreak} put the contract.
  */
-export async function findDeployedBreak(
-  facade: WalletFacade,
-  keys: AccountKeys,
-  config: MidnightNodeConfig,
-  contractAddress: string,
-) {
+export function buildBreakProviders(facade: WalletFacade, keys: AccountKeys, config: MidnightNodeConfig) {
   const breakZkConfigProvider = new NodeZkConfigProvider<BreakCircuitId>(breakManagedPath);
-  const providers = buildExperimentProviders<BreakCircuitId, BreakPrivateStateId>(
+  return buildExperimentProviders<BreakCircuitId, BreakPrivateStateId>(
     facade,
     keys,
     config,
@@ -81,6 +76,15 @@ export async function findDeployedBreak(
       new NodeZkConfigProvider<string>(signetContractManagedPath),
     ]),
   );
+}
+
+/**
+ * Find the deployed break contract, ready for `callTx.<circuit>(...)`.
+ *
+ * @param providers - From {@link buildBreakProviders}.
+ * @param contractAddress - Where {@link deployBreak} put the contract.
+ */
+export async function findDeployedBreak(providers: ReturnType<typeof buildBreakProviders>, contractAddress: string) {
   return findDeployedContract(providers, {
     contractAddress,
     compiledContract: breakCompiledContract,
