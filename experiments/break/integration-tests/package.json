@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "@midnight-experiments/break-contract": "*",
-    "@midnight-experiments/test-harness": "*"
+    "@midnight-experiments/test-harness": "*",
+    "@sig-net/midnight": "0.22.0"
   },
   "devDependencies": {
     "@types/node": "^26.1.0",

@@ -1,31 +1,28 @@
-# break (benchmark)
+# break
 
-Measures the cost of cross-contract calls. TWO contracts: the target (callee)
-deploys first, then the caller seals a reference to it. Circuits: `localBase`
-(no call), `callOnce`, `callTwice`, `callBig` (a `Bytes<256>` call argument)
-and `callEmit` (a call whose callee fires an event).
+Tries to break the Signet protocol from a contract that seals a reference to
+the signet contract (`SignetSigner`) at deploy time. One contract,
+`break.compact`. Its single circuit, `requestSignature`, takes every
+`SignBidirectionalEvent` field except the sender from the caller, unvalidated,
+stores the request in `signBidirectionalEventMap` and calls
+`signBidirectional` on the signet contract.
 
-A cross-contract call proves once per contract in the call tree; the
-instrumented proof provider records the caller's and callee's proofs
-separately, and the suite cross-checks the callee's ledger counted every
-call.
+The signet contract must already be deployed at `SIGNET_CONTRACT_ADDRESS`
+(`contract/src/index.ts`), from the same `@sig-net/midnight-contract` version
+this package depends on: proving the cross-contract call needs its keys.
 
 ## Run it
 
 ```bash
 # from the repo root, with the docker stack up (docker compose up -d):
-yarn compile:zk:break       # proving keys for BOTH contracts
-yarn bench:break            # deploy target + caller, drive all five circuits
-yarn bench:break-callTwice  # a single circuit
-yarn report                 # refresh reports/REPORT.md
+yarn compile:zk:break        # proving keys, needed after every contract change
+yarn test:integration:break  # deploy, then call the circuits under real proving
 ```
 
 ## Layout
 
-- [contract/](contract/): `src/caller.compact` + `src/target.compact`, their
-  export surface (compiled bindings, deploy functions, bench plan, expected
-  callee call counts) in `src/index.ts`.
-- [integration-tests/](integration-tests/): the live bench suite, gated by
-  `RUN_INTEGRATION_TESTS`. Generic driving and recording come from
-  `@midnight-experiments/test-harness-benchmark`; the proof provider spans
-  the whole call tree (caller + target).
+- [contract/](contract/): `src/break.compact` and its export surface in
+  `src/index.ts` (compiled binding, `deployBreak`, `findDeployedBreak`).
+- [integration-tests/](integration-tests/): a plain vitest suite gated by
+  `RUN_INTEGRATION_TESTS`. The wallet session comes from
+  `@midnight-experiments/test-harness`.

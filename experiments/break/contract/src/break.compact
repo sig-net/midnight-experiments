@@ -3,6 +3,7 @@ pragma language_version >= 0.25;
 import CompactStandardLibrary;
 import "@sig-net/midnight/src/Signet";
 
+export ledger signBidirectionalEventMap: SignBidirectionalEventMap<EvmType2TxParams<2, 0, 0>, 34, 34>;
 sealed ledger signetSigner: SignetSigner;
 
 constructor(
@@ -11,8 +12,50 @@ constructor(
   signetSigner = disclose(signetContract);
 }
 
-export ledger ledgerNothing: Uint<128>;
+// Every request field except the sender comes straight from the caller,
+// unvalidated. requestsPathDepth + requestsPath are the notification's pointer
+// to signBidirectionalEventMap (its "index" in compiler/contract-info.json).
+export circuit requestSignature(
+  requestNonce: Uint<64>,
+  keyVersion: Uint<8>,
+  path: Bytes<32>,
+  algo: MPCSignatureAlgorithm,
+  dest: MPCDestination,
+  params: Bytes<64>,
+  txParamType: TxParamType,
+  txParams: EvmType2TxParams<2, 0, 0>,
+  caip2Id: Bytes<32>,
+  outputDeserializationSchema: Bytes<34>,
+  respondSerializationSchema: Bytes<34>,
+  requestsPathDepth: Uint<8>,
+  requestsPath: Vector<4, Uint<8>>,
+): RequestId {
+  const request = disclose(constructSignBidirectionalEvent<EvmType2TxParams<2, 0, 0>, 34, 34>(
+    kernel.self(),
+    requestNonce,
+    keyVersion,
+    path,
+    algo,
+    dest,
+    params,
+    txParamType,
+    txParams,
+    caip2Id,
+    outputDeserializationSchema,
+    respondSerializationSchema
+  ));
+  const requestId = calculateRequestId<EvmType2TxParams<2, 0, 0>, 34, 34>(request);
 
-export circuit doNothing(nothing: Uint<128>): [] {
-  ledgerNothing = disclose(nothing);
+  signBidirectionalEventMap.insert(requestId, request);
+
+  signetSigner.signBidirectional(
+    requestId,
+    constructSignBidirectionalEventNotificationV1(
+      kernel.self(),
+      disclose(requestsPathDepth),
+      disclose(requestsPath),
+    ),
+  );
+
+  return requestId;
 }

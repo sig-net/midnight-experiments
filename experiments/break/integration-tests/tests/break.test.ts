@@ -5,6 +5,13 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { Break, deployBreak, findDeployedBreak } from "@midnight-experiments/break-contract";
+import {
+  evmAddressAbiWord,
+  MPCDestination,
+  MPCSignatureAlgorithm,
+  numericAbiWord,
+  TxParamType,
+} from "@sig-net/midnight";
 import { openWalletSession, type WalletSession } from "@midnight-experiments/test-harness";
 
 describe.skipIf(!process.env.RUN_INTEGRATION_TESTS)("break", () => {
@@ -31,10 +38,51 @@ describe.skipIf(!process.env.RUN_INTEGRATION_TESTS)("break", () => {
     console.log(`break deployed at ${breakAddress}`);
   });
 
-  it("doNothing writes its argument to the ledger", async () => {
+  it("requestSignature stores the request and notifies the signet contract", async () => {
     const deployed = await findDeployedBreak(session.facade, session.keys, session.config, breakAddress);
-    const result = await deployed.callTx.doNothing(42n);
-    console.log(`doNothing finalized in tx ${result.public.txId}`);
-    expect((await readLedger()).ledgerNothing).toBe(42n);
+
+    const schema = new TextEncoder().encode('[{"name":"success","type":"bool"}]');
+    const path = new Uint8Array(32).fill(0x07);
+    const txParams = {
+      chainId: 11155111n,
+      nonce: 0n,
+      maxPriorityFeePerGas: 1_000_000_000n,
+      maxFeePerGas: 30_000_000_000n,
+      gasLimit: 100_000n,
+      to: new Uint8Array(20).fill(0xaa),
+      value: 0n,
+      calldata: {
+        is_some: true,
+        value: {
+          selector: Uint8Array.from([0xa9, 0x05, 0x9c, 0xbb]), // transfer(address,uint256)
+          noWords: 2n,
+          words: [evmAddressAbiWord(new Uint8Array(20).fill(0xbb)), numericAbiWord(1234n)],
+        },
+      },
+      accessListEntryCount: 0n,
+      accessList: [],
+    };
+
+    const result = await deployed.callTx.requestSignature(
+      0n, // requestNonce
+      1n, // keyVersion
+      path,
+      MPCSignatureAlgorithm.ecdsa,
+      MPCDestination.unused,
+      new Uint8Array(64),
+      TxParamType.evmType2,
+      txParams,
+      new Uint8Array(32).fill(0x01), // caip2Id
+      schema,
+      schema,
+      1n, // requestsPathDepth: signBidirectionalEventMap is ledger index 0
+      [0n, 0n, 0n, 0n],
+    );
+    const requestId = result.private.result;
+    console.log(`requestSignature finalized in tx ${result.public.txId}`);
+
+    const stored = (await readLedger()).signBidirectionalEventMap.lookup(requestId);
+    expect(stored.path).toEqual(path);
+    expect(stored.txParams.calldata.value.words[1]).toEqual(numericAbiWord(1234n));
   });
 });

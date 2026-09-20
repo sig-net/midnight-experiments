@@ -27,6 +27,13 @@ export type BreakPrivateStateId = typeof BREAK_PRIVATE_STATE_ID;
 
 export const breakManagedPath = fileURLToPath(new URL("./managed/break", import.meta.url));
 
+// The published signet contract's compiled output (keys/, zkir/). Must be the
+// build deployed at SIGNET_CONTRACT_ADDRESS, as the proof provider matches each
+// call to a compiled contract by verifier key.
+const signetContractManagedPath = fileURLToPath(
+  new URL("./managed", import.meta.resolve("@sig-net/midnight-contract")),
+);
+
 export const breakCompiledContract = makeVacantCompiledContract<
   BreakContract<EmptyPrivateState>,
   EmptyPrivateState
@@ -69,7 +76,10 @@ export async function findDeployedBreak(
     "exp-break",
     breakZkConfigProvider,
     // Must list a zk-config provider for every contract a break circuit calls into.
-    createCrossContractProofServerProvider(config.proofServerUrl, [breakZkConfigProvider]),
+    createCrossContractProofServerProvider(config.proofServerUrl, [
+      breakZkConfigProvider,
+      new NodeZkConfigProvider<string>(signetContractManagedPath),
+    ]),
   );
   return findDeployedContract(providers, {
     contractAddress,
